@@ -12,6 +12,6 @@ public class TestCalc {
 
     @Test
     public void secondTest() {
-        assertEquals(Calc.subtract(7, 3), 40);
+        assertEquals(Calc.subtract(7, 3), 4);
     }
 }
