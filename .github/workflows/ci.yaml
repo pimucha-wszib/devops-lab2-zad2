@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - "docs/**"
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        java: [ "21", "25" ]
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Run tests
+        run: mvn -B test
+
+      - name: Build project
+        run: mvn -B -DskipTests package
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.java }}
+          path: target/*.jar
+
+      - name: Send Discord notification on failure
+        if: failure()
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"Build failed in CI for commit ${{ github.sha }}\"}" \
+               "$WEBHOOK_URL"
