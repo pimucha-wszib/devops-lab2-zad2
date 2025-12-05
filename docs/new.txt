@@ -1,1 +1,3 @@
 Plik którego commit ma nie wywołać CI
+
+Zmiana na feature-branch do pull requesta
