@@ -1,0 +1,1 @@
+Plik którego commit ma nie wywołać CI
